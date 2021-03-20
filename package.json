@@ -8,7 +8,7 @@
     "type-check": "tsc"
   },
   "dependencies": {
-    "@types/next-auth": "^3.7.2",
+    "@types/next-auth": "3.7.1",
     "graphql": "^15.5.0",
     "graphql-request": "^3.4.0",
     "next": "latest",
