@@ -1,5 +1,6 @@
 import { GraphQLClient } from "graphql-request";
 import useSWR from "swr";
+import { signIn, signOut, useSession } from "next-auth/client";
 
 const API = "https://api.github.com/graphql"; // GraphQLエンドポイントのURL
 const repositoryOwner = "octocat"; // 取得するリポジトリ所有者のユーザー名
@@ -59,13 +60,41 @@ function getIssues() {
   ));
 }
 
-const IssuesPage = () => (
-  <>
-    <h1>
-      {repositoryOwner}/{repositoryName} Issue List
-    </h1>
-    {getIssues()}
-  </>
-);
+const IssuesPage = () => {
+  const [session, loading] = useSession();
+
+  return (
+    <>
+      <>
+        {!session && (
+          <>
+            {loading ? (
+              <>Loading ...</>
+            ) : (
+              <>
+                Not signed in <br />
+                <button onClick={() => signIn()}>Sign in</button>
+              </>
+            )}
+          </>
+        )}
+        {session && (
+          <>
+            Signed in as <img src={session.user.image ?? ""} width="50px" />　
+            {session.user.name} <br />
+            AccessToken : {session.accessToken} <br />
+            <button onClick={() => signOut()}>Sign out</button>
+          </>
+        )}
+      </>
+      <>
+        <h1>
+          {repositoryOwner}/{repositoryName} Issue List
+        </h1>
+        {getIssues()}
+      </>
+    </>
+  );
+};
 
 export default IssuesPage;
