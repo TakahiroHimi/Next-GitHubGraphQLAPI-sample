@@ -37,11 +37,10 @@ type FetchData = {
   };
 };
 
-function getIssues() {
+function getIssues(accessToken: string) {
   const client = new GraphQLClient(API, {
     headers: {
-      Authorization:
-        "bearer " + process.env.NEXT_PUBLIC_GITHUB_PERSONAL_ACCESSTOKEN,
+      Authorization: "bearer " + accessToken,
     },
   });
 
@@ -91,7 +90,7 @@ const IssuesPage = () => {
         <h1>
           {repositoryOwner}/{repositoryName} Issue List
         </h1>
-        {getIssues()}
+        {session?.accessToken && getIssues(session.accessToken)}
       </>
     </>
   );
