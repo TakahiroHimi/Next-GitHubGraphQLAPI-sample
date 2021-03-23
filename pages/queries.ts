@@ -3,7 +3,7 @@ import { gql } from "graphql-request";
 /**
  * ViewerのIDを取得するクエリ
  */
-export const getViewer = gql`
+export const getViewerQuery = gql`
   query GetViewer {
     viewer {
       id
