@@ -1,7 +1,7 @@
 import { GraphQLClient, gql } from "graphql-request";
 import useSWR, { mutate } from "swr";
 import { signIn, signOut, useSession } from "next-auth/client";
-import { addReactionQuery } from "./queries";
+import { addReactionQuery, getViewerQuery } from "./queries";
 import { useState } from "react";
 
 const API = "https://api.github.com/graphql"; // GraphQLエンドポイントのURL
@@ -11,7 +11,18 @@ const content = "HOORAY"; // 付与するリアクションの種類
 
 const client = new GraphQLClient(API);
 
-const addReaction = (accessToken: string) => {
+type Viewer = {
+  viewer: {
+    id: string;
+  };
+};
+
+const getViewerId = async () => {
+  const viewer = await client.request<Viewer>(getViewerQuery);
+  return viewer.viewer.id;
+};
+
+const addReaction = () => {
   void client.request(addReactionQuery, {
     addReactionInput: {
       subjectId: subjectId,
@@ -22,10 +33,6 @@ const addReaction = (accessToken: string) => {
 
 const IssuesPage = () => {
   const [session, loading] = useSession();
-  // const { data, error } = useSWR([JOB_POST_BY_ID_QUERY, id], (query, id) => request('/api', query, { id }));
-
-  // const { data, error, revalidate, isValidating, mutate } = useSWR();
-
   if (session) {
     client.setHeader("Authorization", "bearer " + session.accessToken);
   }
