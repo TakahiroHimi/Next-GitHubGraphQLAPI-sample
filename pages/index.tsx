@@ -1,13 +1,17 @@
 import { GraphQLClient, gql } from "graphql-request";
 import useSWR, { mutate } from "swr";
 import { signIn, signOut, useSession } from "next-auth/client";
-import { addReactionQuery, getViewerQuery } from "./queries";
+import {
+  addReactionQuery,
+  getViewerQuery,
+  getIssueReactionsQuery,
+} from "./queries";
 import { useState } from "react";
 
 const API = "https://api.github.com/graphql"; // GraphQLエンドポイントのURL
 
 const subjectId = "MDU6SXNzdWUyMzEzOTE1NTE="; // リアクションするIssueのID(https://github.com/octocat/Hello-World/issues/349)
-const content = "HOORAY"; // 付与するリアクションの種類
+const content = "EYES"; // 付与するリアクションの種類
 
 const client = new GraphQLClient(API);
 
@@ -17,9 +21,41 @@ type Viewer = {
   };
 };
 
+type Repository = {
+  repository: {
+    issue: {
+      reactions: {
+        edges: [
+          {
+            node: {
+              createdAt: string;
+              content: string;
+              user: {
+                id: string;
+              };
+            };
+          }
+        ];
+      };
+    };
+  };
+};
+
 const getViewerId = async () => {
   const viewer = await client.request<Viewer>(getViewerQuery);
   return viewer.viewer.id;
+};
+
+const getReaction = () => {
+  const { data } = useSWR(getIssueReactionsQuery, (query) => {
+    client.request<Repository>(query, {
+      repositoryOwner2: "octocat",
+      repositoryName2: "Hello-World",
+      issueNumber: 349,
+      reactionsContent: "EYES",
+      reactionsLast: 100,
+    });
+  });
 };
 
 const addReaction = () => {
