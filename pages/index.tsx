@@ -53,7 +53,7 @@ const IssuesPage = () => {
   const [viewerId, setViewerId] = useState<string>();
 
   useEffect(() => {
-    const setAccount = async () => {
+    (async () => {
       if (session) {
         const setHeader = async () => {
           client.setHeader("Authorization", "bearer " + session.accessToken);
@@ -63,8 +63,7 @@ const IssuesPage = () => {
         const viewer = await client.request<Viewer>(getViewerQuery);
         void setViewerId(viewer.viewer.id);
       }
-    };
-    void setAccount();
+    })();
   }, [session]);
 
   return (
@@ -81,10 +80,10 @@ const IssuesPage = () => {
           )}
         </>
       )}
-      {session && (
+      {session && viewerId && (
         <>
-          Signed in as <img src={session.user.image ?? ""} width="50px" />
-          　{session.user.name} <br />
+          Signed in as <img src={session.user.image ?? ""} width="50px" />　
+          {session.user.name} <br />
           <button onClick={() => signOut()}>Sign out</button>
           <br />
           <br />
