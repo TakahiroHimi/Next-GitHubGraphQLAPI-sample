@@ -26,6 +26,7 @@ export const getIssueReactionsQuery = gql`
       issue(number: $issueNumber) {
         reactions(content: $reactionsContent, last: $reactionsLast) {
           edges {
+            cursor
             node {
               createdAt
               content
