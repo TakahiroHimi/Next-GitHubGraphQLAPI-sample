@@ -6,6 +6,7 @@ import { getIssueReactionsQuery } from "./queries";
 type Props = {
   client: GraphQLClient;
   viewerId: string;
+  reaction: string;
 };
 
 type Repository = {
@@ -28,16 +29,20 @@ type Repository = {
   };
 };
 
-const Reactions: FC<Props> = ({ client, viewerId }) => {
-  const { data, error } = useSWR<Repository>(getIssueReactionsQuery, (query) =>
-    client.request(query, {
-      repositoryOwner: "octocat",
-      repositoryName: "Hello-World",
-      issueNumber: 349,
-      reactionsContent: "EYES",
-      reactionsLast: 100,
-    })
+const Reactions: FC<Props> = ({ client, viewerId, reaction }) => {
+  const { data, error } = useSWR<Repository>(
+    [getIssueReactionsQuery, reaction],
+    (query) =>
+      client.request(query, {
+        repositoryOwner: "octocat",
+        repositoryName: "Hello-World",
+        issueNumber: 349,
+        reactionsContent: reaction,
+        reactionsLast: 100,
+      })
   );
+
+  console.log(reaction, data);
 
   if (error) return <div>failed to load</div>;
   if (!data) return <div>loading...</div>;

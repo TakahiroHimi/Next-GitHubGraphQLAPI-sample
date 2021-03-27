@@ -11,30 +11,8 @@ import Reactoins from "./reactions";
 
 const API = "https://api.github.com/graphql"; // GraphQLエンドポイントのURL
 const subjectId = "MDU6SXNzdWUyMzEzOTE1NTE="; // リアクションするIssueのID(https://github.com/octocat/Hello-World/issues/349)
-const content = "EYES"; // 付与するリアクションの種類
 
 const client = new GraphQLClient(API);
-
-/**
- * リアクションの種類
- * THUMBS_UP:👍
- * THUMBS_DOWN:👎
- * LAUGH:😄
- * HOORAY:🎉
- * CONFUSED:😕
- * HEART:❤️
- * ROCKET:🚀
- * EYES:👀
- */
-type Content =
-  | "THUMBS_UP"
-  | "THUMBS_DOWN"
-  | "LAUGH"
-  | "HOORAY"
-  | "CONFUSED"
-  | "HEART"
-  | "ROCKET"
-  | "EYES";
 
 type Viewer = {
   viewer: {
@@ -42,7 +20,21 @@ type Viewer = {
   };
 };
 
-const addReaction = (content: Content) => {
+const reactions = [
+  { reaction: "THUMBS_UP", pictograph: "👍" },
+  { reaction: "THUMBS_DOWN", pictograph: "👎" },
+  { reaction: "LAUGH", pictograph: "😄" },
+  { reaction: "HOORAY", pictograph: "🎉" },
+  { reaction: "CONFUSED", pictograph: "😕" },
+  { reaction: "HEART", pictograph: "❤️" },
+  { reaction: "ROCKET", pictograph: "🚀" },
+  { reaction: "EYES", pictograph: "👀" },
+] as {
+  reaction: string;
+  pictograph: string;
+}[];
+
+const addReaction = (content: string) => {
   const action = async () => {
     await client.request(addReactionQuery, {
       addReactionInput: {
@@ -50,7 +42,7 @@ const addReaction = (content: Content) => {
         content: content,
       },
     });
-    await mutate(getIssueReactionsQuery);
+    await mutate([getIssueReactionsQuery, content]);
   };
 
   void action();
@@ -77,38 +69,48 @@ const IssuesPage = () => {
 
   return (
     <>
-      <>
-        {!session && (
-          <>
-            {loading ? (
-              <>Loading ...</>
-            ) : (
+      {!session && (
+        <>
+          {loading ? (
+            <>Loading ...</>
+          ) : (
+            <>
+              Not signed in <br />
+              <button onClick={() => signIn()}>Sign in</button>
+            </>
+          )}
+        </>
+      )}
+      {session && (
+        <>
+          Signed in as <img src={session.user.image ?? ""} width="50px" />
+          　{session.user.name} <br />
+          <button onClick={() => signOut()}>Sign out</button>
+          <br />
+          <br />
+          {reactions.map((reaction) => {
+            return (
               <>
-                Not signed in <br />
-                <button onClick={() => signIn()}>Sign in</button>
+                <button
+                  key={reaction.reaction}
+                  onClick={() => addReaction(reaction.reaction)}
+                >
+                  {reaction.pictograph}
+                </button>
+                {viewerId && (
+                  <Reactoins
+                    key={reaction.reaction + "Status"}
+                    client={client}
+                    viewerId={viewerId}
+                    reaction={reaction.reaction}
+                  />
+                )}
+                <br />
               </>
-            )}
-          </>
-        )}
-        {session && (
-          <>
-            Signed in as <img src={session.user.image ?? ""} width="50px" />
-            　{session.user.name} <br />
-            <button onClick={() => signOut()}>Sign out</button>
-            <br />
-            {viewerId && <Reactoins client={client} viewerId={viewerId} />}
-            <br />
-            <button onClick={() => addReaction("THUMBS_UP")}>👍</button>
-            <button onClick={() => addReaction("THUMBS_DOWN")}>👎</button>
-            <button onClick={() => addReaction("LAUGH")}>😄</button>
-            <button onClick={() => addReaction("HOORAY")}>🎉</button>
-            <button onClick={() => addReaction("CONFUSED")}>😕</button>
-            <button onClick={() => addReaction("HEART")}>❤️</button>
-            <button onClick={() => addReaction("ROCKET")}>🚀</button>
-            <button onClick={() => addReaction("EYES")}>👀</button>
-          </>
-        )}
-      </>
+            );
+          })}
+        </>
+      )}
     </>
   );
 };
