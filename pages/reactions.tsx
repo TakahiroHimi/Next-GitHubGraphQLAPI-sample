@@ -1,12 +1,22 @@
 import { GraphQLClient } from "graphql-request";
 import React, { FC } from "react";
 import useSWR from "swr";
-import { getIssueReactionsQuery } from "./queries";
+import { getIssueReactionsQuery, getViewerQuery } from "./queries";
+
+const repositoryOwner = "octocat"; // 取得するリポジトリのオーナー
+const repositoryName = "Hello-World"; // 取得するリポジトリの名前
+const issueNumber = 349; // 取得するIssueのNo
+const reactionsLast = 100; // 取得するリアクションの件数
 
 type Props = {
   client: GraphQLClient;
-  viewerId: string;
   reaction: string;
+};
+
+type Viewer = {
+  viewer: {
+    id: string;
+  };
 };
 
 type Repository = {
@@ -29,27 +39,29 @@ type Repository = {
   };
 };
 
-const Reactions: FC<Props> = ({ client, viewerId, reaction }) => {
-  const { data, error } = useSWR<Repository>(
+const Reactions: FC<Props> = ({ client, reaction }) => {
+  const { data: viewerData, error: viewerError } = useSWR<Viewer>(
+    getViewerQuery,
+    (query) => client.request(query)
+  );
+  const { data: reactionsData, error: reactionsError } = useSWR<Repository>(
     [getIssueReactionsQuery, reaction],
     (query) =>
       client.request(query, {
-        repositoryOwner: "octocat",
-        repositoryName: "Hello-World",
-        issueNumber: 349,
+        repositoryOwner: repositoryOwner,
+        repositoryName: repositoryName,
+        issueNumber: issueNumber,
         reactionsContent: reaction,
-        reactionsLast: 100,
+        reactionsLast: reactionsLast,
       })
   );
 
-  console.log(reaction, data);
-
-  if (error) return <div>failed to load</div>;
-  if (!data) return <div>loading...</div>;
+  if (viewerError || reactionsError) return <>failed to load</>;
+  if (!viewerData || !reactionsData) return <>loading...</>;
   return (
     <>
-      {data?.repository.issue.reactions.edges.find(
-        (reaction) => reaction.node.user.id === viewerId
+      {reactionsData?.repository.issue.reactions.edges.find(
+        (reaction) => reaction.node.user.id === viewerData.viewer.id
       ) && "Reactioned!"}
     </>
   );

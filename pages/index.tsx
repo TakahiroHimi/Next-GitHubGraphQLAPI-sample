@@ -1,24 +1,12 @@
 import { GraphQLClient } from "graphql-request";
 import { mutate } from "swr";
 import { signIn, signOut, useSession } from "next-auth/client";
-import {
-  addReactionQuery,
-  getIssueReactionsQuery,
-  getViewerQuery,
-} from "./queries";
+import { addReactionQuery, getIssueReactionsQuery } from "./queries";
 import { useEffect, useState } from "react";
 import Reactoins from "./reactions";
 
 const API = "https://api.github.com/graphql"; // GraphQLエンドポイントのURL
 const subjectId = "MDU6SXNzdWUyMzEzOTE1NTE="; // リアクションするIssueのID(https://github.com/octocat/Hello-World/issues/349)
-
-const client = new GraphQLClient(API);
-
-type Viewer = {
-  viewer: {
-    id: string;
-  };
-};
 
 const reactions = [
   { reaction: "THUMBS_UP", pictograph: "👍" },
@@ -34,7 +22,7 @@ const reactions = [
   pictograph: string;
 }[];
 
-const addReaction = (content: string) => {
+const addReaction = (client: GraphQLClient, content: string) => {
   const action = async () => {
     await client.request(addReactionQuery, {
       addReactionInput: {
@@ -50,20 +38,16 @@ const addReaction = (content: string) => {
 
 const IssuesPage = () => {
   const [session, loading] = useSession();
-  const [viewerId, setViewerId] = useState<string>();
+  const [client, setClient] = useState<GraphQLClient>();
 
   useEffect(() => {
-    (async () => {
-      if (session) {
-        const setHeader = async () => {
-          client.setHeader("Authorization", "bearer " + session.accessToken);
-        };
-        await setHeader();
-
-        const viewer = await client.request<Viewer>(getViewerQuery);
-        void setViewerId(viewer.viewer.id);
-      }
-    })();
+    if (session) {
+      setClient(
+        new GraphQLClient(API, {
+          headers: [["Authorization", "bearer " + session.accessToken]],
+        })
+      );
+    }
   }, [session]);
 
   return (
@@ -80,32 +64,25 @@ const IssuesPage = () => {
           )}
         </>
       )}
-      {session && viewerId && (
+      {session && client && (
         <>
-          Signed in as <img src={session.user.image ?? ""} width="50px" />　
-          {session.user.name} <br />
+          Signed in as <img src={session.user.image ?? ""} width="50px" />
+          　{session.user.name} <br />
           <button onClick={() => signOut()}>Sign out</button>
           <br />
           <br />
           {reactions.map((reaction) => {
             return (
-              <>
+              <div key={reaction.reaction + "Status"}>
                 <button
                   key={reaction.reaction}
-                  onClick={() => addReaction(reaction.reaction)}
+                  onClick={() => addReaction(client, reaction.reaction)}
                 >
                   {reaction.pictograph}
                 </button>
-                {viewerId && (
-                  <Reactoins
-                    key={reaction.reaction + "Status"}
-                    client={client}
-                    viewerId={viewerId}
-                    reaction={reaction.reaction}
-                  />
-                )}
+                <Reactoins client={client} reaction={reaction.reaction} />
                 <br />
-              </>
+              </div>
             );
           })}
         </>
