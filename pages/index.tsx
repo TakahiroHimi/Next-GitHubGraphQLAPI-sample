@@ -1,7 +1,11 @@
 import { GraphQLClient } from "graphql-request";
 import { mutate } from "swr";
 import { signIn, signOut, useSession } from "next-auth/client";
-import { addReactionQuery, getViewerQuery } from "./queries";
+import {
+  addReactionQuery,
+  getIssueReactionsQuery,
+  getViewerQuery,
+} from "./queries";
 import { useEffect, useState } from "react";
 import Reactoins from "./reactions";
 
@@ -19,12 +23,17 @@ type Viewer = {
 };
 
 const addReaction = () => {
-  void client.request(addReactionQuery, {
-    addReactionInput: {
-      subjectId: subjectId,
-      content: content,
-    },
-  });
+  const action = async () => {
+    await client.request(addReactionQuery, {
+      addReactionInput: {
+        subjectId: subjectId,
+        content: content,
+      },
+    });
+    await mutate(getIssueReactionsQuery);
+  };
+
+  void action();
 };
 
 const IssuesPage = () => {
@@ -63,8 +72,8 @@ const IssuesPage = () => {
         )}
         {session && (
           <>
-            Signed in as <img src={session.user.image ?? ""} width="50px" />
-            　{session.user.name} <br />
+            Signed in as <img src={session.user.image ?? ""} width="50px" />　
+            {session.user.name} <br />
             <button onClick={() => signOut()}>Sign out</button>
             <br />
             {viewerId && <Reactoins client={client} viewerId={viewerId} />}
