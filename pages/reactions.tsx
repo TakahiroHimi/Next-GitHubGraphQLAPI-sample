@@ -62,7 +62,7 @@ const Reactions: FC<Props> = ({ client, reaction }) => {
     <>
       {reactionsData?.repository.issue.reactions.edges.find(
         (reaction) => reaction.node.user.id === viewerData.viewer.id
-      ) && "Reactioned!"}
+      ) && "Reaction!"}
     </>
   );
 };
