@@ -1,12 +1,9 @@
-import { GraphQLClient, gql } from "graphql-request";
-import useSWR, { mutate } from "swr";
+import { GraphQLClient } from "graphql-request";
+import { mutate } from "swr";
 import { signIn, signOut, useSession } from "next-auth/client";
-import {
-  addReactionQuery,
-  getViewerQuery,
-  getIssueReactionsQuery,
-} from "./queries";
-import { useState } from "react";
+import { addReactionQuery, getViewerQuery } from "./queries";
+import { useEffect, useState } from "react";
+import Reactoins from "./reactions";
 
 const API = "https://api.github.com/graphql"; // GraphQLエンドポイントのURL
 
@@ -21,43 +18,6 @@ type Viewer = {
   };
 };
 
-type Repository = {
-  repository: {
-    issue: {
-      reactions: {
-        edges: [
-          {
-            node: {
-              createdAt: string;
-              content: string;
-              user: {
-                id: string;
-              };
-            };
-          }
-        ];
-      };
-    };
-  };
-};
-
-const getViewerId = async () => {
-  const viewer = await client.request<Viewer>(getViewerQuery);
-  return viewer.viewer.id;
-};
-
-const getReaction = () => {
-  const { data } = useSWR(getIssueReactionsQuery, (query) => {
-    client.request<Repository>(query, {
-      repositoryOwner2: "octocat",
-      repositoryName2: "Hello-World",
-      issueNumber: 349,
-      reactionsContent: "EYES",
-      reactionsLast: 100,
-    });
-  });
-};
-
 const addReaction = () => {
   void client.request(addReactionQuery, {
     addReactionInput: {
@@ -69,9 +29,22 @@ const addReaction = () => {
 
 const IssuesPage = () => {
   const [session, loading] = useSession();
-  if (session) {
-    client.setHeader("Authorization", "bearer " + session.accessToken);
-  }
+  const [viewerId, setViewerId] = useState<string>();
+
+  useEffect(() => {
+    const setAccount = async () => {
+      if (session) {
+        const setHeader = async () => {
+          client.setHeader("Authorization", "bearer " + session.accessToken);
+        };
+        await setHeader();
+
+        const viewer = await client.request<Viewer>(getViewerQuery);
+        void setViewerId(viewer.viewer.id);
+      }
+    };
+    void setAccount();
+  }, [session]);
 
   return (
     <>
@@ -90,13 +63,13 @@ const IssuesPage = () => {
         )}
         {session && (
           <>
-            Signed in as <img src={session.user.image ?? ""} width="50px" />　
-            {session.user.name} <br />
+            Signed in as <img src={session.user.image ?? ""} width="50px" />
+            　{session.user.name} <br />
             <button onClick={() => signOut()}>Sign out</button>
             <br />
-            <button onClick={() => addReaction(session.accessToken ?? "")}>
-              Add Reaction!
-            </button>
+            {viewerId && <Reactoins client={client} viewerId={viewerId} />}
+            <br />
+            <button onClick={() => addReaction()}>Add Reaction!</button>
           </>
         )}
       </>
