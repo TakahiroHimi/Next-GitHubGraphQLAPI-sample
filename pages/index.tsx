@@ -10,11 +10,31 @@ import { useEffect, useState } from "react";
 import Reactoins from "./reactions";
 
 const API = "https://api.github.com/graphql"; // GraphQLエンドポイントのURL
-
 const subjectId = "MDU6SXNzdWUyMzEzOTE1NTE="; // リアクションするIssueのID(https://github.com/octocat/Hello-World/issues/349)
 const content = "EYES"; // 付与するリアクションの種類
 
 const client = new GraphQLClient(API);
+
+/**
+ * リアクションの種類
+ * THUMBS_UP:👍
+ * THUMBS_DOWN:👎
+ * LAUGH:😄
+ * HOORAY:🎉
+ * CONFUSED:😕
+ * HEART:❤️
+ * ROCKET:🚀
+ * EYES:👀
+ */
+type Content =
+  | "THUMBS_UP"
+  | "THUMBS_DOWN"
+  | "LAUGH"
+  | "HOORAY"
+  | "CONFUSED"
+  | "HEART"
+  | "ROCKET"
+  | "EYES";
 
 type Viewer = {
   viewer: {
@@ -22,7 +42,7 @@ type Viewer = {
   };
 };
 
-const addReaction = () => {
+const addReaction = (content: Content) => {
   const action = async () => {
     await client.request(addReactionQuery, {
       addReactionInput: {
@@ -72,13 +92,20 @@ const IssuesPage = () => {
         )}
         {session && (
           <>
-            Signed in as <img src={session.user.image ?? ""} width="50px" />　
-            {session.user.name} <br />
+            Signed in as <img src={session.user.image ?? ""} width="50px" />
+            　{session.user.name} <br />
             <button onClick={() => signOut()}>Sign out</button>
             <br />
             {viewerId && <Reactoins client={client} viewerId={viewerId} />}
             <br />
-            <button onClick={() => addReaction()}>Add Reaction!</button>
+            <button onClick={() => addReaction("THUMBS_UP")}>👍</button>
+            <button onClick={() => addReaction("THUMBS_DOWN")}>👎</button>
+            <button onClick={() => addReaction("LAUGH")}>😄</button>
+            <button onClick={() => addReaction("HOORAY")}>🎉</button>
+            <button onClick={() => addReaction("CONFUSED")}>😕</button>
+            <button onClick={() => addReaction("HEART")}>❤️</button>
+            <button onClick={() => addReaction("ROCKET")}>🚀</button>
+            <button onClick={() => addReaction("EYES")}>👀</button>
           </>
         )}
       </>
