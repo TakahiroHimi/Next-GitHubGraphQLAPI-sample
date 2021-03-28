@@ -25,6 +25,7 @@ type Repository = {
       reactions: {
         edges: [
           {
+            cursor: string;
             node: {
               createdAt: string;
               content: string;
@@ -39,7 +40,7 @@ type Repository = {
   };
 };
 
-const Reactions: FC<Props> = ({ client, reaction }) => {
+const ReactoinStatus: FC<Props> = ({ client, reaction }) => {
   const { data: viewerData, error: viewerError } = useSWR<Viewer>(
     getViewerQuery,
     (query) => client.request(query)
@@ -58,6 +59,7 @@ const Reactions: FC<Props> = ({ client, reaction }) => {
 
   if (viewerError || reactionsError) return <>failed to load</>;
   if (!viewerData || !reactionsData) return <>loading...</>;
+
   return (
     <>
       {reactionsData?.repository.issue.reactions.edges.find(
@@ -67,4 +69,4 @@ const Reactions: FC<Props> = ({ client, reaction }) => {
   );
 };
 
-export default Reactions;
+export default ReactoinStatus;
