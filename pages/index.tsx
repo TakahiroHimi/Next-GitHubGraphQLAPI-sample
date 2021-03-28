@@ -12,6 +12,7 @@ import ReactoinStatus from "./reactionStatus";
 const API = "https://api.github.com/graphql"; // GraphQLエンドポイントのURL
 const subjectId = "MDU6SXNzdWUyMzEzOTE1NTE="; // リアクションするIssueのID(https://github.com/octocat/Hello-World/issues/349)
 
+// Issueへのリアクション一覧
 const reactions = [
   { reaction: "THUMBS_UP", pictograph: "👍" },
   { reaction: "THUMBS_DOWN", pictograph: "👎" },
@@ -26,6 +27,9 @@ const reactions = [
   pictograph: string;
 }[];
 
+/**
+ * Issueへリアクションを追加する関数
+ */
 const addReaction = (client: GraphQLClient, content: string) => {
   const action = async () => {
     await client.request(addReactionQuery, {
@@ -40,6 +44,9 @@ const addReaction = (client: GraphQLClient, content: string) => {
   void action();
 };
 
+/**
+ * Issueからリアクションを削除する関数
+ */
 const removeReaction = (client: GraphQLClient, content: string) => {
   const action = async () => {
     await client.request(removeReactionQuery, {
