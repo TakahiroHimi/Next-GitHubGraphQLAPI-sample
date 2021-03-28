@@ -7,7 +7,7 @@ import {
   removeReactionQuery,
 } from "./queries";
 import { useEffect, useState } from "react";
-import Reactoins from "./reactions";
+import ReactoinStatus from "./reactionStatus";
 
 const API = "https://api.github.com/graphql"; // GraphQLエンドポイントのURL
 const subjectId = "MDU6SXNzdWUyMzEzOTE1NTE="; // リアクションするIssueのID(https://github.com/octocat/Hello-World/issues/349)
@@ -84,8 +84,8 @@ const IssuesPage = () => {
       )}
       {session && client && (
         <>
-          Signed in as <img src={session.user.image ?? ""} width="50px" />　
-          {session.user.name} <br />
+          Signed in as <img src={session.user.image ?? ""} width="50px" />
+          　{session.user.name} <br />
           <button onClick={() => signOut()}>Sign out</button>
           <br />
           <br />
@@ -105,7 +105,7 @@ const IssuesPage = () => {
                 >
                   {reaction.pictograph}
                 </button>
-                <Reactoins client={client} reaction={reaction.reaction} />
+                <ReactoinStatus client={client} reaction={reaction.reaction} />
                 <br />
               </div>
             );
