@@ -11,6 +11,10 @@ import ReactoinStatus from "./reactionStatus";
 
 const API = "https://api.github.com/graphql"; // GraphQLエンドポイントのURL
 const subjectId = "MDU6SXNzdWUyMzEzOTE1NTE="; // リアクションするIssueのID(https://github.com/octocat/Hello-World/issues/349)
+export const repositoryOwner = "octocat"; // 取得するリポジトリのオーナー
+export const repositoryName = "Hello-World"; // 取得するリポジトリの名前
+export const issueNumber = 349; // 取得するIssueのNo
+export const reactionsLast = 100; // 取得するリアクションの件数
 
 // Issueへのリアクション一覧
 const reactions = [
@@ -38,7 +42,14 @@ const addReaction = (client: GraphQLClient, content: string) => {
         content: content,
       },
     });
-    await mutate([getIssueReactionsQuery, content]);
+    await mutate([
+      getIssueReactionsQuery,
+      repositoryOwner,
+      repositoryName,
+      issueNumber,
+      content,
+      reactionsLast,
+    ]);
   };
 
   void action();
@@ -55,7 +66,14 @@ const removeReaction = (client: GraphQLClient, content: string) => {
         content: content,
       },
     });
-    await mutate([getIssueReactionsQuery, content]);
+    await mutate([
+      getIssueReactionsQuery,
+      repositoryOwner,
+      repositoryName,
+      issueNumber,
+      content,
+      reactionsLast,
+    ]);
   };
 
   void action();
@@ -91,8 +109,8 @@ const IssuesPage = () => {
       )}
       {session && client && (
         <>
-          Signed in as <img src={session.user.image ?? ""} width="50px" />
-          　{session.user.name} <br />
+          Signed in as <img src={session.user.image ?? ""} width="50px" />　
+          {session.user.name} <br />
           <button onClick={() => signOut()}>Sign out</button>
           <br />
           <br />

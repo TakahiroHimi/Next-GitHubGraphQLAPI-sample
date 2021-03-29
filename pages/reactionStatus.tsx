@@ -1,12 +1,8 @@
 import { GraphQLClient } from "graphql-request";
 import React, { FC } from "react";
 import useSWR from "swr";
+import { issueNumber, reactionsLast, repositoryName, repositoryOwner } from ".";
 import { getIssueReactionsQuery, getViewerQuery } from "./queries";
-
-const repositoryOwner = "octocat"; // 取得するリポジトリのオーナー
-const repositoryName = "Hello-World"; // 取得するリポジトリの名前
-const issueNumber = 349; // 取得するIssueのNo
-const reactionsLast = 100; // 取得するリアクションの件数
 
 type Props = {
   client: GraphQLClient;
@@ -46,8 +42,22 @@ const ReactoinStatus: FC<Props> = ({ client, reaction }) => {
     (query) => client.request(query)
   );
   const { data: reactionsData, error: reactionsError } = useSWR<Repository>(
-    [getIssueReactionsQuery, reaction],
-    (query) =>
+    [
+      getIssueReactionsQuery,
+      repositoryOwner,
+      repositoryName,
+      issueNumber,
+      reaction,
+      reactionsLast,
+    ],
+    (
+      query,
+      repositoryOwner,
+      repositoryName,
+      issueNumber,
+      reaction,
+      reactionsLast
+    ) =>
       client.request(query, {
         repositoryOwner: repositoryOwner,
         repositoryName: repositoryName,
