@@ -2,7 +2,7 @@ import { GraphQLClient } from "graphql-request";
 import React, { FC } from "react";
 import useSWR from "swr";
 import { issueNumber, reactionsLast, repositoryName, repositoryOwner } from ".";
-import { getIssueReactionsQuery, getViewerQuery } from "./queries";
+import { getIssueReactionsQuery, getViewerQuery } from "../query/queries";
 
 type Props = {
   client: GraphQLClient;

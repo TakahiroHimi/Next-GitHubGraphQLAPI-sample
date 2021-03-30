@@ -5,7 +5,7 @@ import {
   addReactionQuery,
   getIssueReactionsQuery,
   removeReactionQuery,
-} from "./queries";
+} from "../query/queries";
 import { useEffect, useState } from "react";
 import ReactoinStatus from "./reactionStatus";
 
@@ -109,8 +109,8 @@ const IssuesPage = () => {
       )}
       {session && client && (
         <>
-          Signed in as <img src={session.user.image ?? ""} width="50px" />　
-          {session.user.name} <br />
+          Signed in as <img src={session.user.image ?? ""} width="50px" />
+          　{session.user.name} <br />
           <button onClick={() => signOut()}>Sign out</button>
           <br />
           <br />
