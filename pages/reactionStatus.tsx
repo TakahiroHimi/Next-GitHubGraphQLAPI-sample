@@ -50,20 +50,13 @@ const ReactoinStatus: FC<Props> = ({ client, reaction }) => {
       reaction,
       reactionsLast,
     ],
-    (
-      query,
-      repositoryOwner,
-      repositoryName,
-      issueNumber,
-      reaction,
-      reactionsLast
-    ) =>
+    (query, owner, name, number, content, last) =>
       client.request(query, {
-        repositoryOwner: repositoryOwner,
-        repositoryName: repositoryName,
-        issueNumber: issueNumber,
-        reactionsContent: reaction,
-        reactionsLast: reactionsLast,
+        repositoryOwner: owner,
+        repositoryName: name,
+        issueNumber: number,
+        reactionsContent: content,
+        reactionsLast: last,
       })
   );
 
