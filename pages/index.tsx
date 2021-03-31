@@ -71,7 +71,7 @@ const removeReaction = async (client: GraphQLClient, content: string) => {
   ]);
 };
 
-const IssuesPage = () => {
+const Index = () => {
   const [session, loading] = useSession();
   const [client, setClient] = useState<GraphQLClient>();
 
@@ -101,8 +101,8 @@ const IssuesPage = () => {
       )}
       {session && client && (
         <>
-          Signed in as <img src={session.user.image ?? ""} width="50px" />　
-          {session.user.name} <br />
+          Signed in as <img src={session.user.image ?? ""} width="50px" />
+          　{session.user.name} <br />
           <button onClick={() => signOut()}>Sign out</button>
           <br />
           <br />
@@ -133,4 +133,4 @@ const IssuesPage = () => {
   );
 };
 
-export default IssuesPage;
+export default Index;
