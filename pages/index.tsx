@@ -34,49 +34,41 @@ const reactions = [
 /**
  * Issueへリアクションを追加する関数
  */
-const addReaction = (client: GraphQLClient, content: string) => {
-  const action = async () => {
-    await client.request(addReactionQuery, {
-      addReactionInput: {
-        subjectId: subjectId,
-        content: content,
-      },
-    });
-    await mutate([
-      getIssueReactionsQuery,
-      repositoryOwner,
-      repositoryName,
-      issueNumber,
-      content,
-      reactionsLast,
-    ]);
-  };
-
-  void action();
+const addReaction = async (client: GraphQLClient, content: string) => {
+  await client.request(addReactionQuery, {
+    addReactionInput: {
+      subjectId: subjectId,
+      content: content,
+    },
+  });
+  void mutate([
+    getIssueReactionsQuery,
+    repositoryOwner,
+    repositoryName,
+    issueNumber,
+    content,
+    reactionsLast,
+  ]);
 };
 
 /**
  * Issueからリアクションを削除する関数
  */
-const removeReaction = (client: GraphQLClient, content: string) => {
-  const action = async () => {
-    await client.request(removeReactionQuery, {
-      removeReactionInput: {
-        subjectId: subjectId,
-        content: content,
-      },
-    });
-    await mutate([
-      getIssueReactionsQuery,
-      repositoryOwner,
-      repositoryName,
-      issueNumber,
-      content,
-      reactionsLast,
-    ]);
-  };
-
-  void action();
+const removeReaction = async (client: GraphQLClient, content: string) => {
+  await client.request(removeReactionQuery, {
+    removeReactionInput: {
+      subjectId: subjectId,
+      content: content,
+    },
+  });
+  void mutate([
+    getIssueReactionsQuery,
+    repositoryOwner,
+    repositoryName,
+    issueNumber,
+    content,
+    reactionsLast,
+  ]);
 };
 
 const IssuesPage = () => {
@@ -109,8 +101,8 @@ const IssuesPage = () => {
       )}
       {session && client && (
         <>
-          Signed in as <img src={session.user.image ?? ""} width="50px" />
-          　{session.user.name} <br />
+          Signed in as <img src={session.user.image ?? ""} width="50px" />　
+          {session.user.name} <br />
           <button onClick={() => signOut()}>Sign out</button>
           <br />
           <br />
@@ -119,13 +111,13 @@ const IssuesPage = () => {
               <div key={reaction.reaction + "Status"}>
                 <button
                   key={reaction.reaction}
-                  onClick={() => addReaction(client, reaction.reaction)}
+                  onClick={() => void addReaction(client, reaction.reaction)}
                 >
                   {reaction.pictograph}
                 </button>
                 <button
                   key={reaction.reaction}
-                  onClick={() => removeReaction(client, reaction.reaction)}
+                  onClick={() => void removeReaction(client, reaction.reaction)}
                   style={{ backgroundColor: "gray" }}
                 >
                   {reaction.pictograph}
